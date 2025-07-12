@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Car Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+            to { text-shadow: 0 0 20px rgba(78, 205, 196, 0.8); }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .car-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .car-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .car-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .car-card:hover .car-image {
+            transform: scale(1.1);
+        }
+
+        .car-info {
+            padding: 25px;
+        }
+
+        .car-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4ecdc4;
+        }
+
+        .car-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .car-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 15px;
+        }
+
+        .car-specs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .spec-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .view-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translate(-50%, -60%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #fff;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #ff6b6b;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 1rem;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                gap: 10px;
+            }
+            
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 20%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 30%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Premium Car Gallery</h1>
+            <p>Discover the world's most spectacular automobiles</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="🔍 Search cars..." id="searchInput">
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Cars</button>
+            <button class="filter-btn" data-filter="luxury">Luxury</button>
+            <button class="filter-btn" data-filter="sports">Sports</button>
+            <button class="filter-btn" data-filter="suv">SUV</button>
+            <button class="filter-btn" data-filter="electric">Electric</button>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <!-- Cars will be dynamically loaded here -->
+        </div>
+
+        <div class="no-results" id="noResults">
+            <h3>🔍 No cars found</h3>
+            <p>Try adjusting your search or filter criteria</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img class="modal-image" id="modalImage" alt="Car Image">
+            <div id="modalDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // Expanded car data with 24 vehicles
+        const cars = [
+            {
+                id: 1,
+                name: "Ferrari 488 GTB",
+                category: "sports",
+                price: "$245,000",
+                year: "2023",
+                engine: "3.9L V8 Turbo",
+                power: "661 HP",
+                topSpeed: "205 mph",
+                image: "488.webp",
+                description: "The Ferrari 488 GTB is a masterpiece of engineering, combining raw power with elegant Italian design."
+            },
+            {
+                id: 2,
+                name: "Lamborghini Huracán",
+                category: "sports",
+                price: "$215,000",
+                year: "2023",
+                engine: "5.2L V10",
+                power: "630 HP",
+                topSpeed: "202 mph",
+                image: "huricane.webp",
+                description: "The Lamborghini Huracán delivers an exhilarating driving experience with its naturally aspirated V10 engine."
+            },
+            {
+                id: 3,
+                name: "Rolls-Royce Phantom",
+                category: "luxury",
+                price: "$450,000",
+                year: "2023",
+                engine: "6.75L V12",
+                power: "563 HP",
+                topSpeed: "155 mph",
+                image: "rrp.webp",
+                description: "The Rolls-Royce Phantom represents the pinnacle of luxury automotive craftsmanship."
+            },
+            {
+                id: 4,
+                name: "Range Rover Sport",
+                category: "suv",
+                price: "$85,000",
+                year: "2025",
+                engine: "3.0L V6 Supercharged",
+                power: "355 HP",
+                topSpeed: "140 mph",
+                image: "rr.webp",
+                description: "The Range Rover Sport combines luxury with off-road capability in a sporty package."
+            },
+            {
+                id: 5,
+                name: "Tesla Model S Plaid",
+                category: "electric",
+                price: "$130,000",
+                year: "2023",
+                engine: "Tri-Motor Electric",
+                power: "1020 HP",
+                topSpeed: "200 mph",
+                image: "plaid.jpeg",
+                description: "The Tesla Model S Plaid redefines electric performance with mind-bending acceleration."
+            },
+            {
+                id: 6,
+                name: "Porsche 911 Turbo S",
+                category: "sports",
+                price: "$207,000",
+                year: "2023",
+                engine: "3.8L Twin-Turbo Flat-6",
+                power: "640 HP",
+                topSpeed: "205 mph",
+                image: "911.webp",
+                description: "The Porsche 911 Turbo S is the ultimate expression of the iconic 911 sports car."
+            },
+            {
+                id: 7,
+                name: "Mercedes-AMG S63",
+                category: "luxury",
+                price: "$175,000",
+                year: "2023",
+                engine: "4.0L V8 Twin-Turbo",
+                power: "603 HP",
+                topSpeed: "186 mph",
+                image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=500&h=300&fit=crop",
+                description: "The Mercedes-AMG S63 combines luxury and performance in perfect harmony."
+            },
+            {
+                id: 8,
+                name: "BMW X7 M50i",
+                category: "suv",
+                price: "$95,000",
+                year: "2023",
+                engine: "4.4L V8 Twin-Turbo",
+                power: "523 HP",
+                topSpeed: "155 mph",
+                image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=500&h=300&fit=crop",
+                description: "The BMW X7 M50i offers luxury SUV comfort with impressive performance capabilities."
+            },
+            {
+                id: 9,
+                name: "Audi e-tron GT",
+                category: "electric",
+                price: "$103,000",
+                year: "2023",
+                engine: "Dual-Motor Electric",
+                power: "469 HP",
+                topSpeed: "152 mph",
+                image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=500&h=300&fit=crop",
+                description: "The Audi e-tron GT combines stunning design with sustainable electric performance."
+            },
+            {
+                id: 10,
+                name: "McLaren 720S",
+                category: "sports",
+                price: "$299,000",
+                year: "2023",
+                engine: "4.0L V8 Twin-Turbo",
+                power: "710 HP",
+                topSpeed: "212 mph",
+                image: "720s.webp",
+                description: "The McLaren 720S delivers supercar performance with cutting-edge aerodynamics."
+            },
+            {
+                id: 11,
+                name: "Bentley Continental GT",
+                category: "luxury",
+                price: "$230,000",
+                year: "2023",
+                engine: "6.0L W12 Twin-Turbo",
+                power: "626 HP",
+                topSpeed: "208 mph",
+                image: "gt.webp",
+                description: "The Bentley Continental GT blends handcrafted luxury with exhilarating performance."
+            },
+            {
+                id: 12,
+                name: "Cadillac Escalade",
+                category: "suv",
+                price: "$78,000",
+                year: "2023",
+                engine: "6.2L V8",
+                power: "420 HP",
+                topSpeed: "130 mph",
+                image: "esclade.webp",
+                description: "The Cadillac Escalade defines American luxury SUV excellence with bold presence."
+            },
+            {
+                id: 13,
+                name: "Lucid Air Dream",
+                category: "electric",
+                price: "$169,000",
+                year: "2023",
+                engine: "Dual-Motor Electric",
+                power: "1111 HP",
+                topSpeed: "168 mph",
+                image: "lucid.webp",
+                description: "The Lucid Air Dream sets new standards for electric luxury sedans with incredible range."
+            },
+            {
+                id: 14,
+                name: "Bugatti Chiron",
+                category: "sports",
+                price: "$3,000,000",
+                year: "2023",
+                engine: "8.0L W16 Quad-Turbo",
+                power: "1479 HP",
+                topSpeed: "261 mph",
+                image: "chiron.webp",
+                description: "The Bugatti Chiron represents the absolute pinnacle of automotive engineering and speed."
+            },
+            {
+                id: 15,
+                name: "Maserati Quattroporte",
+                category: "luxury",
+                price: "$108,000",
+                year: "2023",
+                engine: "3.0L V6 Twin-Turbo",
+                power: "424 HP",
+                topSpeed: "177 mph",
+                image: "maserati.webp",
+                description: "The Maserati Quattroporte delivers Italian passion in a luxury sedan package."
+            },
+            {
+                id: 16,
+                name: "Jeep Grand Cherokee Trackhawk",
+                category: "suv",
+                price: "$90,000",
+                year: "2023",
+                engine: "6.2L V8 Supercharged",
+                power: "707 HP",
+                topSpeed: "180 mph",
+                image: "jeep.webp",
+                description: "The Jeep Grand Cherokee Trackhawk brings supercar power to the SUV segment."
+            },
+            {
+                id: 17,
+                name: "BMW i8",
+                category: "electric",
+                price: "$148,000",
+                year: "2023",
+                engine: "Hybrid Electric",
+                power: "369 HP",
+                topSpeed: "155 mph",
+                image: "bmw i8.webp",
+                description: "The BMW i8 showcases the future of sustainable sports cars with hybrid technology."
+            },
+            {
+                id: 18,
+                name: "Koenigsegg Jesko",
+                category: "sports",
+                price: "$3,000,000",
+                year: "2023",
+                engine: "5.0L V8 Twin-Turbo",
+                power: "1600 HP",
+                topSpeed: "300+ mph",
+                image: "kon.webp",
+                description: "The Koenigsegg Jesko pushes the boundaries of what's possible in automotive performance."
+            },
+            {
+                id: 19,
+                name: "Aston Martin DB11",
+                category: "luxury",
+                price: "$205,000",
+                year: "2023",
+                engine: "4.0L V8 Twin-Turbo",
+                power: "503 HP",
+                topSpeed: "187 mph",
+                image: "aston.webp",
+                description: "The Aston Martin DB11 embodies British elegance with modern performance capabilities."
+            },
+            {
+                id: 20,
+                name: "Lamborghini Urus",
+                category: "suv",
+                price: "$220,000",
+                year: "2023",
+                engine: "4.0L V8 Twin-Turbo",
+                power: "641 HP",
+                topSpeed: "190 mph",
+                image: "urus.webp",
+                description: "The Lamborghini Urus brings supercar DNA to the luxury SUV segment."
+            },
+            {
+                id: 21,
+                name: "Rivian R1T",
+                category: "electric",
+                price: "$73,000",
+                year: "2023",
+                engine: "Quad-Motor Electric",
+                power: "835 HP",
+                topSpeed: "125 mph",
+                image: "download.webp",
+                description: "The Rivian R1T revolutionizes the electric truck market with adventure-ready capability."
+            },
+            {
+                id: 22,
+                name: "Pagani Huayra",
+                category: "sports",
+                price: "$2,800,000",
+                year: "2023",
+                engine: "6.0L V12 Twin-Turbo",
+                power: "730 HP",
+                topSpeed: "238 mph",
+                image: "pagani-huayra-roadster-bc.jpg",
+                description: "The Pagani Huayra is automotive art in motion, combining Italian craftsmanship with extreme performance."
+            },
+            {
+                id: 23,
+                name: "Genesis GV80",
+                category: "suv",
+                price: "$55,000",
+                year: "2023",
+                engine: "3.5L V6 Twin-Turbo",
+                power: "375 HP",
+                topSpeed: "149 mph",
+                image: "OIP.webp",
+                description: "The Genesis GV80 delivers luxury SUV refinement with distinctive Korean design language."
+            },
+            {
+                id: 24,
+                name: "Ford Mustang Mach-E GT",
+                category: "electric",
+                price: "$60,000",
+                year: "2023",
+                engine: "Dual-Motor Electric",
+                power: "480 HP",
+                topSpeed: "124 mph",
+                image: "image.png",
+                description: "The Ford Mustang Mach-E GT brings Mustang performance heritage to the electric age."
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentSearchTerm = '';
+
+        function renderCars() {
+            const gallery = document.getElementById('gallery');
+            const noResults = document.getElementById('noResults');
+            
+            let filteredCars = cars;
+            
+            // Apply filter
+            if (currentFilter !== 'all') {
+                filteredCars = filteredCars.filter(car => car.category === currentFilter);
+            }
+            
+            // Apply search
+            if (currentSearchTerm) {
+                filteredCars = filteredCars.filter(car => 
+                    car.name.toLowerCase().includes(currentSearchTerm.toLowerCase()) ||
+                    car.category.toLowerCase().includes(currentSearchTerm.toLowerCase())
+                );
+            }
+            
+            if (filteredCars.length === 0) {
+                gallery.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            gallery.style.display = 'grid';
+            noResults.style.display = 'none';
+            
+            gallery.innerHTML = filteredCars.map(car => `
+                <div class="car-card">
+                    <img src="${car.image}" alt="${car.name}" class="car-image">
+                    <div class="car-info">
+                        <h3 class="car-name">${car.name}</h3>
+                        <div class="car-details">
+                            <span>Year: ${car.year}</span>
+                            <span>Power: ${car.power}</span>
+                        </div>
+                        <div class="car-price">${car.price}</div>
+                        <div class="car-specs">
+                            <span class="spec-tag">${car.engine}</span>
+                            <span class="spec-tag">Top Speed: ${car.topSpeed}</span>
+                        </div>
+                        <button class="view-btn" onclick="openModal(${car.id})">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(carId) {
+            const car = cars.find(c => c.id === carId);
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            const modalDetails = document.getElementById('modalDetails');
+            
+            modalImage.src = car.image;
+            modalImage.alt = car.name;
+            
+            modalDetails.innerHTML = `
+                <h2 style="color: #4ecdc4; margin-bottom: 15px;">${car.name}</h2>
+                <p style="margin-bottom: 20px; opacity: 0.9;">${car.description}</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div><strong>Price:</strong> ${car.price}</div>
+                    <div><strong>Year:</strong> ${car.year}</div>
+                    <div><strong>Engine:</strong> ${car.engine}</div>
+                    <div><strong>Power:</strong> ${car.power}</div>
+                    <div><strong>Top Speed:</strong> ${car.topSpeed}</div>
+                    <div><strong>Category:</strong> ${car.category.charAt(0).toUpperCase() + car.category.slice(1)}</div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCars();
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    renderCars();
+                });
+            });
+            
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function() {
+                currentSearchTerm = this.value;
+                renderCars();
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
